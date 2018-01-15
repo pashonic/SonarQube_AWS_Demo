@@ -108,6 +108,7 @@ I would have used Clusters Aurora to allow for encryption.
 * Encrypt the database, using clustred aurora. (Security)
 * Encrypt database password via KMS (Security) (Decrypt in userdata)
 * Make scripts AV/region agnostic.
+* Draw fancy infrastructure diagram.
 * Remove public key from AMI. (Security)
 * Put library dependencies in S3 or owned repo. (Security)
 * Use office approved hardened Linux image. (Security)
