@@ -123,7 +123,7 @@ I would have used Clusters Aurora to allow for encryption.
 
 # How scenarios are handled.
 
-### Updating Sonarqube or Instance (Server).
+### Updating Sonarqube or Instance (AMI).
 
 * Implementing and testing changes can be done both locally and in AWS.
 * Engineers would duplicate the production database and test it against the new AMI.
