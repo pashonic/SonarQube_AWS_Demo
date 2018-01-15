@@ -1,8 +1,8 @@
 # Solution Highlights
 
 * Immutable environment AMI based deployments using Autoscaling groups. 
-* AMI baking is done via Ansible.
-* Infrastructure creation via Cloud Formation executed via Ansible.
+* AMI baking via Ansible.
+* Infrastructure creation via Cloud Formation executed with Ansible.
 * Anisble scirpts can be ran against local workstation VM.
 
 # Non-System Requirements For Running
@@ -59,7 +59,7 @@ ok: [localhost] => {
 
 1. Execute AMI baking command:
 ```
-ansible-playbook aws_create_update_stack.yml --extra-vars "ami_id=[AMI ID] stack_name=[Stack Name]"
+$ansible-playbook aws_create_update_stack.yml --extra-vars "ami_id=[AMI ID] stack_name=[Stack Name]"
 ```
 2. Wait awhile (9-10 minutes)
 3. Get the LB "DNS name" URL from Cloud Formation output. (AWS Console)
@@ -68,6 +68,22 @@ ansible-playbook aws_create_update_stack.yml --extra-vars "ami_id=[AMI ID] stack
 Note: Wait 1-2 minutes for URL to work.
 
 ## Configuring local VM (no AWS).
+
+1. Ensure your current session has SSH access to target box.
+2. Create local hosts file with target machine IP. Examples:
+```
+[hoststargets]
+centos.local  ansible_port=2222 ansible_host=127.0.0.1  ansible_user=vagrant
+```
+```
+[hoststargets]
+172.68.3.1
+```
+3. Run Ansible playbook against target:
+```
+$ansible-playbook configure_target.yml -i hosts --extra-vars "targetenv=local sshconfiguser=vagrant"
+```
+4. Wait and check server: http://[VM IP]:9000
 
 # Assignment Requirements I didn't Fulfill Due to Time.
 
