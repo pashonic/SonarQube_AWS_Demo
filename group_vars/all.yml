@@ -4,9 +4,9 @@ database_name: sonar
 database_username: sonar
 database_password: sonarsonar
 
-sonar_mysql_username: "{{ database_name }}"
-sonar_mysql_password: "{{ database_username }}"
-sonar_mysql_database: "{{ database_password }}"
+sonar_mysql_username: "{{ database_username }}"
+sonar_mysql_password: "{{ database_password }}"
+sonar_mysql_database: "{{ database_name }}"
 
 date:
   month: "{{ ansible_date_time.month }}"
