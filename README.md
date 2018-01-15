@@ -115,7 +115,7 @@ I would have used Clusters Aurora to allow for encryption.
 * Performance tune (Figure out correct EC2 and RDS Database type)
 * Evaluate costs of solutions.
 
-# Things I Would Have Done if I Unlimited tTime.
+# Things I Would Have Done if I Unlimited Time.
 * Create docker image just for running scripts.
 * Create one script that does entire process via one command.
 
