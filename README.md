@@ -15,7 +15,7 @@
 * SHH public key located at following system location: ~/.ssh/id_rsa.pub. See aws_create_ami.yml if you need to change location.
 * GIT Installed. 
 * This GIT repo cloned to system.
-* Tools Installed (via pip:
+* Tools Installed (via pip):
   * Ansible.
   * Boto python package.
   * Boto3 python package.
@@ -69,7 +69,7 @@ Note: Wait additional 1-2 minutes for URL to work.
 
 ## Configuring local VM (no AWS).
 
-1. Ensure your current session has SSH access to target box.
+1. Ensure your current session has unrestricted SSH access to target box.
 2. Create local hosts file with target machine IP. Examples:
 ```
 [hoststargets]
@@ -87,7 +87,7 @@ $ansible-playbook configure_target.yml -i hosts --extra-vars "targetenv=local ss
 
 # Assignment Requirements I didn't Fulfill Due to Time.
 
-## I didn't encrypt database, big missing security feature.
+## I didn't encrypt database (BIG missing security feature).
 I would have used Clusters Aurora to allow for encryption.
 
 ## I didn't do the Telemetry portion. I would have done the following if I had time:
@@ -97,7 +97,7 @@ I would have used Clusters Aurora to allow for encryption.
 * Maybe Alarms for the scaling group, Alarm if instance cycles.
 * Implement Route 53 health check alerting against endpoint URL. 
 * All the alerts would email pager duty (Severe) or Team email list (Warnings).
-* Use tools such as New Relic or Appdynamics.
+* Use tools such as New Relic or Appdynamics to monitor Sonar's Java runtime environment.
 * EC2 Detailed monitoring is enabled.
 
 # Things I Would Done if I Had More Time.
@@ -122,17 +122,14 @@ I would have used Clusters Aurora to allow for encryption.
 
 ### Updating Sonarqube.
 
-Implementing and testing changes can be done both locally and in AWS.
-
-Engineers would duplicate the production database and test it against the new AMI.
-
-Updating would simply involved updating the existing CF instance with the new AMI.
-
-There will be downtime during the update process (1-2 minutes)
+* Implementing and testing changes can be done both locally and in AWS.
+* Engineers would duplicate the production database and test it against the new AMI.
+* Updating would simply involved updating the existing CF instance with the new AMI.
+* There will be downtime during the update process (1-2 minutes)
 
 ### Sonar crashes.
 
-If sonar or the server crashes the ELB will mark instance and unhealthy and Autoscaling group will replace instance. There will be downtime (3-5 minutes)
+If sonar or the server crashes the ELB will mark instance and unhealthy and Autoscaling group will replace instance. There will be downtime (3-5 minutes).
 
 ### Developer wants to run local version of Sonar.
 
