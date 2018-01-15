@@ -116,7 +116,7 @@ I would have used Clusters Aurora to allow for encryption.
 * Improve parameterization and remove hard-coded values from templates/scripts (Readability)
 * Delete or tag Ansible generated AWS temp objects for baking AMI.
 * Performance tune (Figure out correct EC2 and RDS Database type)
-* Evaluate costs of solutions.
+* Evaluate costs.
 
 # Things I Would Have Done if I Unlimited Time.
 * Create docker image just for running scripts.
