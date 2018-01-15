@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# Run me with sudo.
+# !!!!!Run me with sudo!!!!!
+
 sudo apt-get update
 apt-get install -y python-dev libssl-dev libffi-dev libxml2-dev libxslt-dev python-pip
 pip install -r requirements.txt
