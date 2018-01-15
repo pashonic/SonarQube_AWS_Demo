@@ -13,13 +13,14 @@
 # System Requirements For Running
 
 * SHH public key located at following system location: ~/.ssh/id_rsa.pub. See aws_create_ami.yml if you need to change location.
-* GIT Installed. 
-* This GIT repo cloned to system.
+* GIT Installed.
+* PIP Installed.
 * Tools Installed (via pip):
   * Ansible.
   * Boto python package.
   * Boto3 python package.
   * AWS CLI.
+* This GIT repo cloned to system.
   
 Optional:
 [Disable SSH Host Checking](http://bencane.com/2013/07/22/ssh-disable-host-checking-for-scripts-automation/)
