@@ -59,7 +59,7 @@ ok: [localhost] => {
 
 ## Creating Infrastructure.
 
-1. Execute AMI baking command:
+1. Pass the AMI ID and Stack Name to AMI baking command:
 ```
 $ansible-playbook aws_create_update_stack.yml --extra-vars "ami_id=[AMI ID] stack_name=[Stack Name]"
 ```
