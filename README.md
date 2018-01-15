@@ -92,7 +92,7 @@ I would have used Clusters Aurora to allow for encryption.
 * Remove public key from AMI. (Security)
 * Put library dependencies in S3 or owned repo. (Security)
 * Use office approved hardened Linux image. (Security)
-* Imeplment DNS failover Route Policy using healthchecks. This could also greatly improve downtime between updates (overkill Availability) 
+* Implement DNS fail-over Route Policy using healthchecks. This could also greatly improve downtime between updates (overkill Availability) 
 * Improve parameterization and remove hard-coded values from templates/scripts (Readability)
 * Delete or tag Ansible generated AWS temp objects for baking AMI.
 * Performance tune (Figure out correct EC2 and RDS Database type)
@@ -106,7 +106,7 @@ I would have used Clusters Aurora to allow for encryption.
 
 ### Updating Sonarqube.
 
-Implmenting and testing changes can be done both locally and in AWS.
+Implementing and testing changes can be done both locally and in AWS.
 
 Engineers would duplicate the production database and test it against the new AMI.
 
@@ -121,8 +121,3 @@ If sonar or the server crashes the ELB will mark instance and unhealthy and Auto
 ### Developer wants to run local version of Sonar.
 
 Developer can use the above "Configuring local VM" steps.
-
-# 3rd Party Tools/Libraries
-
-
-
