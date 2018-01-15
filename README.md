@@ -1,6 +1,7 @@
 # Solution Highlights
 
 * Immutable environment AMI based deployments using Autoscaling groups. 
+* Auto recoverable Infrastructure.
 * AMI baking via Ansible.
 * Infrastructure creation via Cloud Formation executed with Ansible.
 * Anisble scirpts can be ran against local workstation VM.
