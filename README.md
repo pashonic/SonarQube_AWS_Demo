@@ -121,9 +121,9 @@ I would have used Clusters Aurora to allow for encryption.
 * Create docker image just for running scripts.
 * Create one script that does entire process via one command.
 
-# How use case scenarios are handled.
+# How scenarios are handled.
 
-### Updating Sonarqube.
+### Updating Sonarqube or Instance (Server).
 
 * Implementing and testing changes can be done both locally and in AWS.
 * Engineers would duplicate the production database and test it against the new AMI.
