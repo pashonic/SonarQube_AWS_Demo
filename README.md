@@ -65,7 +65,7 @@ $ansible-playbook aws_create_update_stack.yml --extra-vars "ami_id=[AMI ID] stac
 3. Get the LB "DNS name" URL from Cloud Formation output. (AWS Console)
 4. Attempt to access DNS name from browser (Http/Port 80).
 
-Note: Wait 1-2 minutes for URL to work.
+Note: Wait additional 1-2 minutes for URL to work.
 
 ## Configuring local VM (no AWS).
 
@@ -132,7 +132,7 @@ There will be downtime during the update process (1-2 minutes)
 
 ### Sonar crashes.
 
-If sonar or the server crashes the ELB will mark instance and unhealthy and Autoscaling group will replace instance.
+If sonar or the server crashes the ELB will mark instance and unhealthy and Autoscaling group will replace instance. There will be downtime (3-5 minutes)
 
 ### Developer wants to run local version of Sonar.
 
