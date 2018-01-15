@@ -1,0 +1,26 @@
+systemd_override_dir: /etc/systemd/system
+
+database_name: sonar
+database_username: sonar
+database_password: sonarsonar
+
+date:
+  month: "{{ ansible_date_time.month }}"
+  day: "{{ ansible_date_time.day }}"
+  year: "{{ ansible_date_time.year }}"
+
+mysql_databases:
+  - name: "{{ database_name }}"
+    encoding: latin1
+    collation: latin1_general_ci
+
+mysql_users:
+  - name: "{{ database_username }}"
+    host: "%"
+    password: "{{ database_password }}"
+    priv: "sonar.*:ALL"
+
+sonar_mysql_allowed_hosts:
+  - 127.0.0.1
+  - ::1
+  - localhost

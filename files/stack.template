@@ -1,0 +1,246 @@
+Description: Sonarqube Infrastructure.
+
+Parameters:
+
+  EC2AMI:
+    Description: AMI ID of ec2 instance
+    Type: String
+
+  DBInstanceType:
+    Default: db.m4.large
+    Description: The instance type to use for the database.
+    Type: String
+
+  DBName:
+    Default: sonar
+    Description: The database name
+    Type: String
+
+  DBUser:
+    Default: sonar
+    Description: The database admin account username
+    Type: String
+
+  DBPassword:
+    Default: sonarsonar
+    Description: The database admin account password
+    Type: String
+
+Resources:
+
+#
+# Network setup
+#
+
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 172.31.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      InstanceTenancy: default
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+
+  VPCGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+        VpcId: !Ref VPC
+        InternetGatewayId: !Ref InternetGateway
+
+  SubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: us-west-2a
+      VpcId: !Ref VPC
+      CidrBlock: 172.31.0.0/20
+
+  SubnetB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: us-west-2b
+      VpcId: !Ref VPC
+      CidrBlock: 172.31.16.0/20
+
+  RouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+
+  InternetRoute:
+    Type: AWS::EC2::Route
+    DependsOn: InternetGateway
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+      RouteTableId: !Ref RouteTable
+
+  SubnetARouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref RouteTable
+      SubnetId: !Ref SubnetA
+
+  SubnetBRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref RouteTable
+      SubnetId: !Ref SubnetB
+          
+#          
+# Database Setup
+#
+
+  DBSecurityGroup: 
+    Type: AWS::RDS::DBSecurityGroup
+    Properties:
+      GroupDescription: Database SG
+      EC2VpcId: !Ref VPC
+      DBSecurityGroupIngress: 
+        - EC2SecurityGroupId: !Ref EC2SecurityGroup
+
+  DBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+        DBSubnetGroupDescription: CloudFormation managed DB subnet group.
+        SubnetIds:
+          - Ref: SubnetA
+          - Ref: SubnetB
+
+  DBInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      AllocatedStorage: 20
+      Engine: mysql
+      StorageEncrypted: true
+      DBInstanceClass:
+        Ref: DBInstanceType
+      DBSubnetGroupName:
+        Ref: DBSubnetGroup
+      DBName: 
+        Ref: DBName
+      MasterUsername:
+        Ref: DBUser
+      MasterUserPassword:
+        Ref: DBPassword
+      DBSubnetGroupName:
+        Ref: DBSubnetGroup
+      DBSecurityGroups:
+        - Ref: DBSecurityGroup
+
+#          
+# Instance/taffic manag objects.
+#
+
+  EC2SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: EC2 SecurityGroup
+      GroupDescription: EC2 SecurityGroup
+      VpcId: !Ref VPC
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+
+  ELBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: ELB SecurityGroup
+      GroupDescription: ELB SecurityGroup
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '80'
+          ToPort: '80'
+          CidrIp: 38.140.26.74/32
+        - IpProtocol: tcp
+          FromPort: '80'
+          ToPort: '80'
+          CidrIp: 209.210.189.44/32
+        - IpProtocol: tcp
+          FromPort: '80'
+          ToPort: '80'
+          CidrIp: 50.35.97.40/32
+
+  ElasticLoadBalancer: 
+    Type: AWS::ElasticLoadBalancing::LoadBalancer
+    Properties:
+      SecurityGroups: [!Ref ELBSecurityGroup]
+      Subnets:
+          - Ref: SubnetA
+      Listeners: 
+        - 
+          LoadBalancerPort: 80
+          InstancePort: 9000
+          Protocol: HTTP
+      HealthCheck: 
+        Target: 
+          Fn::Join: 
+            - ""
+            - 
+              - "HTTP:"
+              - 9000
+              - "/"
+        HealthyThreshold: 3
+        UnhealthyThreshold: 5
+        Interval: 30
+        Timeout: 5
+
+  ASGLaunchConfiguration: 
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      ImageId: !Ref EC2AMI
+      InstanceType: t2.large
+      SecurityGroups: [!Ref EC2SecurityGroup]
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -x
+          echo "sonar.jdbc.username=${DBUser}" > /usr/local/sonar/conf/sonar.properties
+          echo "sonar.jdbc.password=${DBPassword}" >> /usr/local/sonar/conf/sonar.properties
+          echo "sonar.jdbc.url= jdbc:mysql://${DBInstance.Endpoint.Address}:3306/${DBName}?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true" >> /usr/local/sonar/conf/sonar.properties
+          echo "sonar.web.context=" >> /usr/local/sonar/conf/sonar.properties
+          systemctl restart sonar
+
+  ASG:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    UpdatePolicy: 
+      AutoScalingRollingUpdate: 
+        MinInstancesInService: 0
+        MaxBatchSize: 1
+    Properties:
+      HealthCheckGracePeriod: 300
+      HealthCheckType: ELB
+      AvailabilityZones: 
+        - us-west-2a
+      LaunchConfigurationName: !Ref ASGLaunchConfiguration
+      LoadBalancerNames: [!Ref ElasticLoadBalancer]
+      MaxSize: 1
+      MinSize: 0
+      DesiredCapacity: 1
+      VPCZoneIdentifier:
+          - Ref: SubnetA
+
+
+  ELBEngress:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: !Ref ELBSecurityGroup
+      IpProtocol: tcp
+      FromPort: 9000
+      ToPort: 9000
+      DestinationSecurityGroupId: !Ref EC2SecurityGroup
+      
+  EC2Ingress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref EC2SecurityGroup
+      IpProtocol: tcp
+      FromPort: 9000
+      ToPort: 9000
+      SourceSecurityGroupId: !Ref ELBSecurityGroup
+      
+Outputs:
+  URL:
+    Description: Load Balancer URL
+    Value: !Sub "http://${ElasticLoadBalancer.DNSName}"

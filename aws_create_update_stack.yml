@@ -1,0 +1,22 @@
+#
+# Create and configure AWS AMI.
+#
+
+- name: Create AWS Stack.
+  hosts: localhost
+  gather_facts: False
+  vars_files:
+      - "group_vars/aws.yml"
+  tasks:
+      - name: launch Sonarqube AWS stack.
+        cloudformation:
+          stack_name: "{{ stack_name }}"
+          state: "present"
+          region: "{{ aws_region }}"
+          template: "files/stack.template"
+          template_parameters:
+            EC2AMI: "{{ ami_id }}"
+            DBName: "{{ database_name }}"
+            DBUser: "{{ database_username }}"
+            DBPassword: "{{ database_password }}"
+

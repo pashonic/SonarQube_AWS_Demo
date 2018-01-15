@@ -1,0 +1,18 @@
+#
+# Configure target (AWS Instance or local instance)
+#
+
+- name: Install sonar qube
+  hosts: hoststargets
+  remote_user: "{{ sshconfiguser }}"
+  become: True
+  become_user: root
+  gather_facts: True
+  pre_tasks:
+    - name: Install unzip.
+      package: name=unzip state=installed
+  roles:
+    - role: geerlingguy.mysql
+      become: yes
+      when: targetenv == 'local'
+    - role: geerlingguy.sonar

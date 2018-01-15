@@ -1,0 +1,133 @@
+#
+# Create and configure AWS AMI.
+#
+
+- name: Launch new ec2 instance from base community centos AMI
+  hosts: localhost
+  gather_facts: False
+  vars_files:
+      - "group_vars/aws.yml"
+  tasks:
+
+      - name: Create access key using your local public key
+        ec2_key:
+          region: "{{ aws_region }}"
+          name: tempkey
+          key_material: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+          state: present
+
+      - name: Create ec2 group
+        ec2_group:
+          name: "Temp SG"
+          region: "{{ aws_region }}"
+          description: "Temp EC2 SG (Delete Me)"
+          rules:
+            - proto: tcp
+              from_port: 22
+              to_port: 22
+              cidr_ip: 50.35.97.40/32
+            - proto: tcp
+              from_port: 22
+              to_port: 22
+              cidr_ip: 38.140.26.74/32
+            - proto: tcp
+              from_port: 22
+              to_port: 22
+              cidr_ip: 209.210.189.44/32
+            - proto: tcp
+              from_port: 9000
+              to_port: 9000
+              cidr_ip: 50.35.97.40/32
+            - proto: tcp
+              from_port: 9000
+              to_port: 9000
+              cidr_ip: 38.140.26.74/32
+            - proto: tcp
+              from_port: 9000
+              to_port: 9000
+              cidr_ip: 209.210.189.44/32
+          rules_egress:
+            - proto: all
+              cidr_ip: 0.0.0.0/0
+        register: aws_sg
+
+      - name: Launching temp new ec2 instance with centos OS
+        ec2:
+          image: "ami-0c2aba6c"
+          instance_type: "t2.large"
+          key_name: tempkey
+          region: "{{ aws_region }}"
+          group_id: "{{ aws_sg.group_id }}"
+          wait: yes
+          state: present
+          volumes:
+            - device_name: /dev/sda1
+              delete_on_termination: true
+              volume_size: 8
+        register: aws_ec2
+
+      - set_fact:
+          instance: "{{ aws_ec2.instances[0] }}"
+
+      - debug: msg="Instance started {{ instance }}"
+
+      - name: Register new instance with hostgroup
+        add_host:
+          groupname: hoststargets
+          hostname: "{{ instance.public_ip }}"
+
+      - name: Wait for instance to become available
+        wait_for:
+          host: "{{ instance.public_ip }}"
+          port: 22
+          delay: 60
+          timeout: 300
+          search_regex: OpenSSH
+          state: started
+
+- include: configure_target.yml sshconfiguser=centos targetenv=aws
+
+#
+# Capture AMI image.
+#
+
+- name: Build AMI
+  hosts: localhost
+  gather_facts: True
+  connection: localhost
+  vars_files:
+      - "group_vars/aws.yml"
+  tasks:
+      - debug: msg="building new AMI {{ aws_ec2_ami_name }} from instance {{ instance }}"
+
+      - name: build new AMI
+        ec2_ami:
+          name: "{{ aws_ec2_ami_name }}"
+          description: "sonarqube"
+          instance_id: "{{ instance.id }}"
+          region: "{{ aws_region }}"
+          state: present
+          wait: yes
+        register: ec2_ami
+
+      - debug: msg="AMI ID {{ ec2_ami.image_id }}"
+
+#
+# Terminate AMI instance.
+#
+
+- name: Terminate temp instance.
+  hosts: localhost
+  gather_facts: False
+  vars_files:
+      - "group_vars/aws.yml"
+  pre_tasks:
+      - debug: msg="Terminating AMI Build instance"
+  tasks:
+      - name: Terminating instance.
+        ec2:
+          state: absent
+          instance_ids: "{{ instance.id }}"
+          region: "{{ aws_region }}"
+
+      - debug: msg="AMI ID {{ ec2_ami.image_id }}"
