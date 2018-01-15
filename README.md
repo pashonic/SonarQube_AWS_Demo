@@ -1,5 +1,3 @@
-# 98point6 Assignment
-
 # Solution Highlights
 
 * Immutable environment AMI based deployments and updates using Autoscaling groups. 
