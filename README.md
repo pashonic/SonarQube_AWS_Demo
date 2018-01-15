@@ -4,7 +4,7 @@
 * Auto recoverable Infrastructure.
 * AMI baking via Ansible.
 * Infrastructure creation via Cloud Formation executed with Ansible.
-* Anisble scirpts can be ran against local workstation VM.
+* Anisble scripts can be ran against local workstation VM.
 
 # Non-System Requirements For Running
 
