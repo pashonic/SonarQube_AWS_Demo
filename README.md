@@ -1,3 +1,7 @@
+# Summary
+
+This is a demo project I created that deploys SonarQube to AWS.
+
 # Solution Highlights
 
 * Immutable environment AMI based deployments using Autoscaling groups. 
