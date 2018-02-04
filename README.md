@@ -91,7 +91,7 @@ $ansible-playbook configure_target.yml -i hosts --extra-vars "targetenv=local ss
 ```
 4. Wait and check server: http://[VM IP]:9000
 
-# Assignment Requirements I Didn't Straight Up Fulfill Due to Time.
+# Things I should have done
 
 ## I didn't encrypt database (BIG missing security feature).
 I would have used Clusters Aurora to allow for encryption.
