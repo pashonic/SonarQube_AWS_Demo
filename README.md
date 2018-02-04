@@ -1,6 +1,6 @@
 # Summary
 
-This is a demo project I created that deploys SonarQube to AWS.
+This is a demo project I created that deploys SonarQube to AWS. The purpose of this demo is to demonstrate automation; it should not be used for a production environment.
 
 # Solution Highlights
 
